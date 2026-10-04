@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rugby · Top 14</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1200px 700px at 15% 10%, #1b3a5c 0%, transparent 55%),
+      radial-gradient(1000px 800px at 85% 90%, #12352a 0%, transparent 55%),
+      linear-gradient(160deg, #0d1117 0%, #101820 100%);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .widget {
+    width: 400px;
+    max-width: 100%;
+    background: rgba(28, 28, 30, 0.78);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    color: #f2f2f7;
+  }
+
+  /* ---------- Header ---------- */
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .ball {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: linear-gradient(135deg, #2f7d4f, #1e5a38);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .head .titles { flex: 1; min-width: 0; }
+  .head h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .head h1 .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #ff453a;
+    box-shadow: 0 0 8px #ff453a;
+    animation: pulse 1.6s infinite;
+  }
+  .head .sub {
+    font-size: 12px;
+    color: rgba(235, 235, 245, 0.6);
+    margin-top: 2px;
+  }
+  .fav-btn {
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #f2f2f7;
+    font-size: 13px;
+    font-family: inherit;
+    padding: 7px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .fav-btn:hover { background: rgba(255, 255, 255, 0.16); }
+
+  /* ---------- Hero (prochain match) ---------- */
+  .hero {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .hero .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #64d2ff;
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hero .label .jn {
+    color: rgba(235,235,245,0.55);
+    font-weight: 600;
+    letter-spacing: 0.4px;
+  }
+  .hero .vs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  .hero .team {
+    text-align: center;
+  }
+  .hero .team .color-dot {
+    width: 14px; height: 14px; border-radius: 5px;
+    margin: 0 auto 6px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .hero .team .name {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .hero .team .rank {
+    font-size: 11px;
+    color: rgba(235,235,245,0.55);
+    margin-top: 2px;
+  }
+  .hero .mid {
+    text-align: center;
+    min-width: 86px;
+  }
+  .hero .mid .kick {
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffd60a;
+    letter-spacing: 0.4px;
+  }
+  .hero .mid .score {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .countdown {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+  .countdown .cell {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 6px 0;
+    width: 64px;
+    text-align: center;
+  }
+  .countdown .cell .v {
+    font-size: 19px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+  .countdown .cell .u {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(235,235,245,0.55);
+  }
+  .status-msg {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #30d158;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    padding: 12px 14px 0;
+    gap: 6px;
+  }
+  .tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(235, 235, 245, 0.55);
+    padding: 8px 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: #f2f2f7; background: rgba(255,255,255,0.06); }
+  .tab.active {
+    color: #fff;
+    background: rgba(100, 210, 255, 0.18);
+  }
+
+  /* ---------- Liste des matchs ---------- */
+  .matches { padding: 12px 14px 6px; }
+  .match {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+  }
+  .match:hover { background: rgba(255,255,255,0.05); }
+  .match.fav-match {
+    background: rgba(48, 209, 88, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(48, 209, 88, 0.35);
+  }
+  .match .when {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(235,235,245,0.6);
+    line-height: 1.35;
+  }
+  .match .when .st-done { color: rgba(235,235,245,0.45); }
+  .match .when .st-live { color: #ff453a; }
+  .match .when .st-soon { color: #ffd60a; }
+  .match .teams {
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .match .teams .t { display: flex; align-items: center; gap: 7px; }
+  .match .teams .dot {
+    width: 9px; height: 9px; border-radius: 3px;
+    flex: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .match .teams .winner { font-weight: 800; color: #fff; }
+  .match .teams .loser { color: rgba(235,235,245,0.6); }
+  .match .sc {
+    text-align: right;
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .match .sc .pending {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(235,235,245,0.4);
+  }
+
+  /* ---------- Classement ---------- */
+  .standings { padding: 12px 14px 8px; }
+  .st-row {
+    display: grid;
+    grid-template-columns: 26px 12px 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6.5px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .st-row:hover { background: rgba(255,255,255,0.05); }
+  .st-row .pos {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: rgba(235,235,245,0.6);
+  }
+  .st-row .barrier { display: flex; }
+  .st-row .zone {
+    width: 3.5px; height: 20px; border-radius: 2px;
+  }
+  .st-row .zone.top { background: #30d158; }
+  .st-row .zone.mid { background: rgba(255,255,255,0.18); }
+  .st-row .zone.rele { background: #ff453a; }
+  .st-row .zone.access { background: #ff9f0a; }
+  .st-row .dot {
+    width: 9px; height: 9px; border-radius: 3px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .st-row .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .st-row .nm .jj {
+    font-size: 10.5px;
+    color: rgba(235,235,245,0.45);
+    font-weight: 500;
+    margin-left: 5px;
+  }
+  .st-row .diff {
+    font-size: 11.5px;
+    color: rgba(235,235,245,0.5);
+    font-variant-numeric: tabular-nums;
+    min-width: 38px;
+    text-align: right;
+  }
+  .st-row .pts {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    min-width: 26px;
+    text-align: right;
+  }
+  .st-row.fav-team-row { background: rgba(48, 209, 88, 0.10); }
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 4px 24px 16px;
+    font-size: 10.5px;
+    color: rgba(235,235,245,0.45);
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend i { width: 3.5px; height: 11px; border-radius: 2px; display: inline-block; }
+
+  /* ---------- Footer ---------- */
+  .foot {
+    padding: 10px 20px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10.5px;
+    color: rgba(235, 235, 245, 0.45);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  @media (prefers-color-scheme: light) {
+    body { background: linear-gradient(160deg, #e8eef5, #dfe7ee); }
+    .widget { background: rgba(255,255,255,0.72); color: #1c1c1e; border-color: rgba(0,0,0,0.08); }
+    .head .sub, .match .when, .match .sc .pending, .st-row .pos, .st-row .diff,
+    .hero .team .rank, .legend { color: rgba(60,60,67,0.55); }
+    .match .teams .winner, .match .sc, .hero .mid .score { color: #000; }
+    .match .teams .loser { color: rgba(60,60,67,0.6); }
+    .tab { color: rgba(60,60,67,0.55); }
+    .tab:hover { color: #1c1c1e; background: rgba(0,0,0,0.05); }
+    .tab.active { color: #000; background: rgba(100,210,255,0.28); }
+    .countdown .cell .v { color: #000; }
+    .foot { color: rgba(60,60,67,0.5); }
+    .st-row .nm { color: #1c1c1e; }
+    .match:hover, .st-row:hover { background: rgba(0,0,0,0.045); }
+    .st-row.fav-team-row, .match.fav-match { background: rgba(48,209,88,0.14); }
+  }
+</style>
+</head>
+<body>
+
+<div class="widget" id="widget">
+  <div class="head">
+    <div class="ball">🏉</div>
+    <div class="titles">
+      <h1 id="w-title">TOP 14 <span class="live-dot" id="live-dot"></span></h1>
+      <div class="sub" id="w-sub">Saison 2026-27 · Journée 5</div>
+    </div>
+    <button class="fav-btn" id="favBtn" title="Choisir mon équipe">★ Équipe</button>
+  </div>
+
+  <div class="hero" id="hero"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="j5">Résultats · J5</button>
+    <button class="tab" data-tab="j6">J6 · À venir</button>
+    <button class="tab" data-tab="classement">Classement</button>
+  </div>
+
+  <div id="tab-j5" class="matches"></div>
+  <div id="tab-j6" class="matches" style="display:none"></div>
+  <div id="tab-classement" style="display:none">
+    <div class="standings" id="standings"></div>
+    <div class="legend">
+      <span><i style="background:#30d158"></i> Phases finales</span>
+      <span><i style="background:#ff9f0a"></i> Barrage maintien</span>
+      <span><i style="background:#ff453a"></i> Relégation</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span id="foot-date"></span>
+    <span>Données : LNR · après J5</span>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ================= Données Top 14 · saison 2026-27 (après J5, 3-4 oct. 2026) ================= */
+
+const TEAMS = {
+  Toulouse:      { name: "Toulouse",        color: "#11131a", accent: "#e0313a", rank: 1,  pts: 19, j: 5, diff: "+62" },
+  Pau:           { name: "Pau",             color: "#0a7d4f", accent: "#0a7d4f", rank: 2,  pts: 18, j: 5, diff: "+49" },
+  Bayonne:       { name: "Bayonne",         color: "#1f5fa8", accent: "#1f5fa8", rank: 3,  pts: 17, j: 5, diff: "-13" },
+  Bordeaux:      { name: "Bordeaux-Bègles", color: "#0d3b66", accent: "#3aa6b9", rank: 4,  pts: 15, j: 5, diff: "+63" },
+  Lyon:          { name: "Lyon",            color: "#b5121b", accent: "#b5121b", rank: 5,  pts: 14, j: 5, diff: "+3"  },
+  LaRochelle:    { name: "La Rochelle",     color: "#0e3a5c", accent: "#f5c542", rank: 6,  pts: 13, j: 5, diff: "-3"  },
+  Clermont:      { name: "Clermont",        color: "#f3c000", accent: "#f3c000", rank: 7,  pts: 10, j: 5, diff: "-28" },
+  Racing92:      { name: "Racing 92",       color: "#87ceeb", accent: "#0b4ea2", rank: 8,  pts: 10, j: 5, diff: "-39" },
+  StadeFrancais: { name: "Stade Français",  color: "#0a2f7a", accent: "#0a2f7a", rank: 9,  pts: 10, j: 5, diff: "-19" },
+  Montpellier:   { name: "Montpellier",     color: "#0a5fa8", accent: "#f58220", rank: 10, pts: 9,  j: 4, diff: "+21" },
+  Perpignan:     { name: "Perpignan",       color: "#b5121b", accent: "#f5d000", rank: 11, pts: 9,  j: 5, diff: "-42" },
+  Castres:       { name: "Castres",         color: "#0a2f5a", accent: "#8ac2e8", rank: 12, pts: 9,  j: 5, diff: "-18" },
+  Toulon:        { name: "Toulon",          color: "#0b0b3a", accent: "#e0313a", rank: 13, pts: 8,  j: 4, diff: "+14" },
+  Vannes:        { name: "Vannes",         color: "#1c6e5a", accent: "#f5f0e1", rank: 14, pts: 1,  j: 5, diff: "-50" }
+};
+
+const J5 = [
+  { day: "Sam 3 oct", time: "14:30", home: "Bordeaux",      hs: 51, away: "Lyon",         as: 28 },
+  { day: "Sam 3 oct", time: "16:35", home: "Bayonne",       hs: 35, away: "StadeFrancais", as: 32 },
+  { day: "Sam 3 oct", time: "16:35", home: "LaRochelle",    hs: 38, away: "Clermont",     as: 13 },
+  { day: "Sam 3 oct", time: "16:35", home: "Racing92",      hs: 55, away: "Perpignan",    as: 25 },
+  { day: "Sam 3 oct", time: "16:35", home: "Vannes",        hs: 40, away: "Pau",          as: 43 },
+  { day: "Sam 3 oct", time: "21:00", home: "Castres",       hs: 7,  away: "Toulouse",     as: 8  },
+  { day: "Dim 4 oct", time: "21:05", home: "Montpellier",   hs: null, away: "Toulon",     as: null,
+    kickoff: "2026-10-04T21:05:00+02:00" }
+];
+
+const J6 = [
+  { day: "Sam 10 oct", time: "14:30", home: "StadeFrancais", away: "Montpellier" },
+  { day: "Sam 10 oct", time: "16:35", home: "Lyon",          away: "LaRochelle" },
+  { day: "Sam 10 oct", time: "16:35", home: "Pau",           away: "Castres" },
+  { day: "Sam 10 oct", time: "16:35", home: "Perpignan",     away: "Vannes" },
+  { day: "Sam 10 oct", time: "16:35", home: "Toulon",        away: "Racing92" },
+  { day: "Sam 10 oct", time: "21:00", home: "Clermont",      away: "Bordeaux" },
+  { day: "Dim 11 oct", time: "21:05", home: "Toulouse",      away: "Bayonne",
+    kickoff: "2026-10-11T21:05:00+02:00" }
+];
+
+/* ================= Utilitaires ================= */
+
+const $ = (id) => document.getElementById(id);
+let fav = localStorage.getItem("rugbyFav") || null;
+
+function teamDot(key) {
+  const t = TEAMS[key];
+  return '<span class="dot" style="background:linear-gradient(135deg,' + t.accent + ',' + t.color + ')"></span>';
+}
+function isFavMatch(m) {
+  return fav && (m.home === fav || m.away === fav);
+}
+function matchStatus(m) {
+  if (m.hs !== null && m.as !== null) {
+    return { cls: "st-done", label: "Terminé" };
+  }
+  const ko = m.kickoff ? new Date(m.kickoff).getTime() : null;
+  if (!ko) return { cls: "st-soon", label: "À venir" };
+  const now = Date.now();
+  if (now >= ko && now < ko + 2 * 3600e3) return { cls: "st-live", label: "● En cours" };
+  if (now >= ko + 2 * 3600e3) return { cls: "st-done", label: "Terminé" };
+  return { cls: "st-soon", label: "À venir" };
+}
+
+/* ================= Rendu ================= */
+
+function renderMatches(container, list) {
+  container.innerHTML = list.map(m => {
+    const st = matchStatus(m);
+    const played = m.hs !== null && m.as !== null;
+    const hW = played && m.hs > m.as, aW = played && m.as > m.hs;
+    const favCls = isFavMatch(m) ? " fav-match" : "";
+    const score = played
+      ? m.hs + " – " + m.as
+      : '<span class="pending">' + st.label + "</span>";
+    const line = (key, isWinner, isLoser) =>
+      '<div class="t">' + teamDot(key) +
+      '<span class="' + (isWinner ? "winner" : isLoser ? "loser" : "") + '">' +
+      TEAMS[key].name + "</span></div>";
+    return '<div class="match' + favCls + '">' +
+      '<div class="when">' + m.day + '<br><span class="' + st.cls + '">' + st.label + "</span><br>" + m.time + "</div>" +
+      '<div class="teams">' + line(m.home, hW, aW) + line(m.away, aW, hW) + "</div>" +
+      '<div class="sc">' + score + "</div>" +
+      "</div>";
+  }).join("");
+}
+
+function renderStandings() {
+  const order = Object.keys(TEAMS).sort((a, b) => TEAMS[a].rank - TEAMS[b].rank);
+  $("standings").innerHTML = order.map(k => {
+    const t = TEAMS[k];
+    const zone = t.rank <= 6 ? "top" : t.rank === 13 ? "access" : t.rank === 14 ? "rele" : "mid";
+    return '<div class="st-row' + (fav === k ? " fav-team-row" : "") + '">' +
+      '<span class="pos">' + t.rank + "</span>" +
+      '<span class="barrier"><span class="zone ' + zone + '"></span></span>' +
+      teamDot(k) +
+      '<span class="nm">' + t.name + (t.j < 5 ? '<span class="jj">(1 match en moins)</span>' : "") + "</span>" +
+      '<span class="diff">' + t.diff + "</span>" +
+      '<span class="pts">' + t.pts + "</span>" +
+      "</div>";
+  }).join("");
+}
+
+function renderHero() {
+  // Prochain match : le premier non joué de J5, sinon le premier de J6
+  const next = J5.find(m => matchStatus(m).label !== "Terminé") ||
+               J6.find(m => matchStatus(m).label !== "Terminé");
+  if (!next) { $("hero").style.display = "none"; return; }
+  const h = TEAMS[next.home], a = TEAMS[next.away];
+  const played = next.hs !== null && next.as !== null;
+  const ko = next.kickoff ? new Date(next.kickoff).getTime() : null;
+  const now = Date.now();
+  const live = ko && now >= ko && now < ko + 2 * 3600e3;
+
+  let midHTML;
+  if (played) {
+    midHTML = '<div class="kick">' + next.day + " · " + next.time + "</div>" +
+      '<div class="score">' + next.hs + " – " + next.as + "</div>";
+  } else {
+    midHTML = '<div class="kick">' + next.day.replace(/ \d/, "&nbsp;") + " · " + next.time + "</div>" +
+      '<div class="score">vs</div>';
+  }
+
+  let bottomHTML = "";
+  if (live) {
+    bottomHTML = '<div class="status-msg">● Match en cours</div>';
+  } else if (ko && now < ko) {
+    bottomHTML = '<div class="countdown" id="countdown"></div>';
+  } else if (played) {
+    bottomHTML = "";
+  }
+
+  $("hero").innerHTML =
+    '<div class="label"><span>Prochain match</span><span class="jn">Top 14</span></div>' +
+    '<div class="vs">' +
+      '<div class="team"><div class="color-dot" style="background:linear-gradient(135deg,' + h.accent + "," + h.color + ')"></div>' +
+        '<div class="name">' + h.name + "</div>" +
+        '<div class="rank">' + h.rank + "ᵉ · " + h.pts + " pts</div></div>" +
+      '<div class="mid">' + midHTML + "</div>" +
+      '<div class="team"><div class="color-dot" style="background:linear-gradient(135deg,' + a.accent + "," + a.color + ')"></div>' +
+        '<div class="name">' + a.name + "</div>" +
+        '<div class="rank">' + a.rank + "ᵉ · " + a.pts + " pts</div></div>" +
+    "</div>" + bottomHTML;
+
+  if (live) $("live-dot").style.display = "";
+  else $("live-dot").style.display = "none";
+}
+
+function tickCountdown() {
+  const el = $("countdown");
+  if (!el) return;
+  const next = J5.find(m => matchStatus(m).label !== "Terminé") ||
+               J6.find(m => matchStatus(m).label !== "Terminé");
+  if (!next || !next.kickoff) return;
+  let ms = new Date(next.kickoff).getTime() - Date.now();
+  if (ms <= 0) { renderHero(); renderMatches($("tab-j5"), J5); return; }
+  const h = Math.floor(ms / 3600e3); ms -= h * 3600e3;
+  const m = Math.floor(ms / 60e3);   ms -= m * 60e3;
+  const s = Math.floor(ms / 1000);
+  const cells = [
+    [h, "h"], [m, "min"], [s, "sec"]
+  ];
+  el.innerHTML = cells.map(c =>
+    '<div class="cell"><div class="v">' + String(c[0]).padStart(2, "0") +
+    '</div><div class="u">' + c[1] + "</div></div>").join("");
+}
+
+function renderAll() {
+  renderHero();
+  renderMatches($("tab-j5"), J5);
+  renderMatches($("tab-j6"), J6);
+  renderStandings();
+  tickCountdown();
+  const f = fav ? TEAMS[fav] : null;
+  $("favBtn").textContent = f ? "★ " + f.name : "★ Équipe";
+}
+
+/* ================= Interactions ================= */
+
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    ["j5", "j6", "classement"].forEach(t => {
+      $("tab-" + t).style.display = (btn.dataset.tab === t) ? "" : "none";
+    });
+  });
+});
+
+$("favBtn").addEventListener("click", () => {
+  const keys = Object.keys(TEAMS).sort((a, b) => TEAMS[a].rank - TEAMS[b].rank);
+  const msg = "Ton équipe favorite ?\n\n" +
+    keys.map(k => TEAMS[k].rank + " — " + TEAMS[k].name).join("\n") +
+    "\n\nEntre le numéro (1-14), ou laisse vide pour retirer :";
+  const input = window.prompt(msg, fav ? String(TEAMS[fav].rank) : "");
+  if (input === null) return;
+  const n = parseInt(input.trim(), 10);
+  if (!n || n < 1 || n > 14) { fav = null; localStorage.removeItem("rugbyFav"); }
+  else { fav = keys[n - 1]; localStorage.setItem("rugbyFav", fav); }
+  renderAll();
+});
+
+/* ================= Init ================= */
+
+const now = new Date();
+$("foot-date").textContent =
+  "Mis à jour le " +
+  now.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+renderAll();
+setInterval(() => { tickCountdown(); }, 1000);
+</script>
+</body>
+</html>
